@@ -1,0 +1,59 @@
+package com.example.PawConnect.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+@Entity
+@Table(name = "veterinarian_availability", indexes = {
+    @Index(name = "idx_vet_avail_vet_day", columnList = "veterinarian_id, day_of_week")
+}, uniqueConstraints = {
+    @UniqueConstraint(name = "uk_vet_avail_vet_day", columnNames = {"veterinarian_id", "day_of_week"})
+})
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(of = "id")
+@ToString(exclude = {"veterinarian"})
+@EntityListeners(AuditingEntityListener.class)
+public class VeterinarianAvailability {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "veterinarian_id", nullable = false)
+    private Veterinarian veterinarian;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "day_of_week", length = 20, nullable = false)
+    private DayOfWeek dayOfWeek;
+
+    @Column(name = "start_time")
+    private LocalTime startTime;
+
+    @Column(name = "end_time")
+    private LocalTime endTime;
+
+    @Column(name = "slot_duration_minutes")
+    private Integer slotDurationMinutes;
+
+    @Column(name = "is_available", nullable = false)
+    private Boolean isAvailable;
+
+    @Builder.Default
+    @Column(name = "is_configured", nullable = false)
+    private Boolean isConfigured = false;
+
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+}
